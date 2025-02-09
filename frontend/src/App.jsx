@@ -10,6 +10,7 @@ import AdminDashboard from './Pages/admin/Dashboard'
 import ProtectedRoute from "./components/ProtectedRoute";
 import BrowseJobs from './Pages/BrowseJobs'
 import AppliedJobs from './Pages/AppliedJobs'
+import ViewApplications from './Pages/admin/ViewApplications'
 
 
 const PrivateRoute = ({ children, roleRequired }) => {
@@ -40,6 +41,7 @@ function App(){
         {/* 🔹 Admin Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/applications" element={<ViewApplications />} />
         </Route>
     </Routes>
     </>

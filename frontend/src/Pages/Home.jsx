@@ -12,7 +12,6 @@ import Navbar from '../components/Navbar';
 const HomePage = () => {
   return (
     <Box>
-      {/* Hero Section */}
       <Box
         sx={{
           backgroundImage: 'url(https://source.unsplash.com/1600x900/?jobs,career)',

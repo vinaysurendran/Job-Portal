@@ -40,14 +40,18 @@ router.get("/applied-jobs", verifyToken, async (req, res) => {
   }
 });
 
-// Create Job (Admin Only)
-router.post("/", async (req, res) => {
+// Create Job
+router.post("/", verifyToken, isAdmin, async (req, res) => {
   try {
-    const job = new Job(req.body);
-    console.log(res.body);
+    console.log("Job Create Request Body:", req.body); // Debugging
+
+    const { _id, ...jobData } = req.body; // ✅ Remove `_id` if present
+    const job = new Job(jobData);
+
     await job.save();
     res.status(201).json(job);
   } catch (error) {
+    console.error("Error Creating Job:", error);
     res.status(500).json({ error: "Error Creating Job" });
   }
 });
@@ -64,23 +68,51 @@ router.get("/", async (req, res) => {
 });
 
 // Update Job
-router.put("/:id", verifyToken, isAdmin,async (req, res) => {
+router.put("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
+    console.log("Job Update Request Body:", req.body); // Debugging
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    if (!job) {
+      return res.status(404).json({ error: "Job Not Found" });
+    }
+
     res.json(job);
-    console.log(res.body);
+    console.log("Job Updated:", job);
   } catch (error) {
+    console.error("Error Updating Job:", error);
     res.status(500).json({ error: "Error Updating Job" });
   }
 });
 
+
 // Delete Job
-router.delete("/:id",verifyToken, isAdmin, async (req, res) => {
+router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
   try {
-    await Job.findByIdAndDelete(req.params.id);
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: "Job Not Found" });
+
+    await job.deleteOne();
+    console.log("Job Deleted:", job);
     res.json({ message: "Job Deleted" });
   } catch (error) {
+    console.error("Error Deleting Job:", error);
     res.status(500).json({ error: "Error Deleting Job" });
+  }
+});
+
+
+// ✅ Get All User Applications (Admin Only)
+router.get("/applications", verifyToken, isAdmin, async (req, res) => {
+  try {
+    const users = await User.find({ appliedJobs: { $exists: true, $not: { $size: 0 } } })
+      .populate("appliedJobs", "title company location") // Get job details
+      .select("name email appliedJobs"); // Only return necessary fields
+
+    res.json(users);
+  } catch (error) {
+    console.error("Error Fetching Applications:", error);
+    res.status(500).json({ error: "Error Fetching Applications" });
   }
 });
 
