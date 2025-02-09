@@ -1,22 +1,25 @@
-// middleware/auth.js
 const jwt = require("jsonwebtoken");
 
-const auth = (req, res, next) => {
-  // Get token from header
-  const token = req.header("Authorization")?.replace("Bearer ", "");
-
-  if (!token) {
-    return res.status(401).json({ error: "No token, authorization denied" });
-  }
+// Verify JWT Token
+const verifyToken = (req, res, next) => {
+  const token = req.header("Authorization");
+  if (!token) return res.status(403).json({ error: "Access Denied" });
 
   try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user data to the request
+    const verified = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
+    req.user = verified;
     next();
-  } catch (error) {
-    res.status(401).json({ error: "Invalid token" });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid Token" });
   }
 };
 
-module.exports = auth;
+// Check if User is Admin
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ error: "Admin Access Only" });
+  }
+  next();
+};
+
+module.exports = { verifyToken, isAdmin };

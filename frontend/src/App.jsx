@@ -8,6 +8,8 @@ import Home from './Pages/Home'
 import UserDashboard from './Pages/user/Dashboard'
 import AdminDashboard from './Pages/admin/Dashboard'
 import ProtectedRoute from "./components/ProtectedRoute";
+import BrowseJobs from './Pages/BrowseJobs'
+import AppliedJobs from './Pages/AppliedJobs'
 
 
 const PrivateRoute = ({ children, roleRequired }) => {
@@ -27,9 +29,12 @@ function App(){
       <Route path='/'Component={Home}/>
       <Route path='/signin'Component={Signin}/>
       <Route path='/signup' Component={Signup}/>
+      <Route path="/browse-jobs" element={<BrowseJobs />} />
         {/* 🔹 User Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/user/dashboard" element={<UserDashboard />} />
+          <Route path="/browse-jobs" element={<BrowseJobs />} />
+          <Route path="/applied-jobs" element={<AppliedJobs />} />
         </Route>
 
         {/* 🔹 Admin Protected Route */}

@@ -1,128 +1,173 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
   Button,
   Container,
+  TextField,
+  Typography,
   Box,
   Grid,
-  Paper,
   Card,
   CardContent,
   CardActions,
-  List,
-  ListItem,
-  ListItemText,
-} from '@mui/material';
+  Select,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import API from "../../api";
 
 const AdminDashboard = () => {
-  // Mock data for users and job postings
-  const users = [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-    { id: 3, name: 'Alice Johnson', email: 'alice@example.com' },
-  ];
+  const [jobs, setJobs] = useState([]);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    requirements: "",
+    location: "",
+    salary: "",
+    jobType: "Full-time",
+  });
+  const [editJob, setEditJob] = useState(null); // Stores job being edited
+  const [openEditModal, setOpenEditModal] = useState(false); // Edit modal state
 
-  const jobPostings = [
-    { id: 1, title: 'Frontend Developer', company: 'Tech Corp' },
-    { id: 2, title: 'Backend Developer', company: 'Code Masters' },
-    { id: 3, title: 'UI/UX Designer', company: 'Design Studio' },
-  ];
+  // Fetch Jobs
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await API.get("/jobs");
+        setJobs(res.data);
+      } catch (err) {
+        console.error("Error fetching jobs:", err);
+      }
+    };
+    fetchJobs();
+  }, []);
+
+  // Handle Input Change for New & Edit Form
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handle Job Type Change
+  const handleJobTypeChange = (e) => {
+    setFormData({ ...formData, jobType: e.target.value });
+  };
+
+  // Create Job
+  const handleCreateJob = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const res = await API.post("/jobs", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setJobs([...jobs, res.data]); // Update UI
+      setFormData({ title: "", description: "", requirements: "", location: "", salary: "", jobType: "Full-time" });
+    } catch (err) {
+      console.error("Error creating job:", err);
+    }
+  };
+
+  // Open Edit Modal
+  const handleEditClick = (job) => {
+    setEditJob(job);
+    setFormData(job);
+    setOpenEditModal(true);
+  };
+
+  // Save Edited Job
+  const handleSaveEdit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await API.put(`/jobs/${editJob._id}`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update UI
+      setJobs(jobs.map((job) => (job._id === editJob._id ? res.data : job)));
+      setOpenEditModal(false);
+    } catch (err) {
+      console.error("Error updating job:", err);
+    }
+  };
+
+  // Delete Job
+  const handleDeleteJob = async (jobId) => {
+    try {
+      const token = localStorage.getItem("token");
+      await API.delete(`/jobs/${jobId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setJobs(jobs.filter((job) => job._id !== jobId));
+    } catch (err) {
+      console.error("Error deleting job:", err);
+    }
+  };
 
   return (
-    <Box>
-      {/* Navbar */}
-      <AppBar position="static" sx={{ backgroundColor: 'primary.main' }}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Admin Dashboard
-          </Typography>
-          <Button color="inherit" href="/logout">
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
+    <Container>
+      <Typography variant="h4" align="center" sx={{ mt: 4 }}>Admin Dashboard</Typography>
 
-      {/* Dashboard Content */}
-      <Container sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ mb: 4 }}>
-          Welcome, Admin
-        </Typography>
+      {/* Job Creation Form */}
+      <Box component="form" onSubmit={handleCreateJob} sx={{ mt: 4, mb: 4 }}>
+        <TextField fullWidth name="title" label="Job Title" value={formData.title} onChange={handleChange} required sx={{ mb: 2 }} />
+        <TextField fullWidth name="description" label="Description" value={formData.description} onChange={handleChange} required sx={{ mb: 2 }} />
+        <TextField fullWidth name="requirements" label="Requirements" value={formData.requirements} onChange={handleChange} required sx={{ mb: 2 }} />
+        <TextField fullWidth name="location" label="Location" value={formData.location} onChange={handleChange} required sx={{ mb: 2 }} />
+        <TextField fullWidth name="salary" label="Salary" value={formData.salary} onChange={handleChange} required sx={{ mb: 2 }} />
 
-        <Grid container spacing={4}>
-          {/* User Management Section */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-                User Management
-              </Typography>
-              <List>
-                {users.map((user) => (
-                  <ListItem key={user.id}>
-                    <ListItemText primary={user.name} secondary={user.email} />
-                  </ListItem>
-                ))}
-              </List>
-              <CardActions>
-                <Button size="small" color="primary">
-                  Add User
-                </Button>
-              </CardActions>
-            </Paper>
-          </Grid>
+        {/* Job Type Dropdown */}
+        <Select fullWidth name="jobType" value={formData.jobType} onChange={handleJobTypeChange} required sx={{ mb: 2 }}>
+          <MenuItem value="Full-time">Full-time</MenuItem>
+          <MenuItem value="Part-time">Part-time</MenuItem>
+          <MenuItem value="Internship">Internship</MenuItem>
+        </Select>
 
-          {/* Job Postings Section */}
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-                Job Postings
-              </Typography>
-              {jobPostings.map((job) => (
-                <Card key={job.id} sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Typography variant="h6" component="h3">
-                      {job.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {job.company}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary">
-                      Edit
-                    </Button>
-                    <Button size="small" color="secondary">
-                      Delete
-                    </Button>
-                  </CardActions>
-                </Card>
-              ))}
-              <CardActions>
-                <Button size="small" color="primary">
-                  Add Job Posting
-                </Button>
-              </CardActions>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
-
-      {/* Footer */}
-      <Box
-        sx={{
-          backgroundColor: 'primary.main',
-          color: 'white',
-          py: 4,
-          mt: 8,
-          textAlign: 'center',
-        }}
-      >
-        <Typography variant="body1">
-          &copy; {new Date().getFullYear()} Job Portal. All rights reserved.
-        </Typography>
+        <Button type="submit" variant="contained" fullWidth>Add Job</Button>
       </Box>
-    </Box>
+
+      {/* Job List */}
+      <Grid container spacing={3}>
+        {jobs.map((job) => (
+          <Grid item xs={12} md={6} key={job._id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">{job.title}</Typography>
+                <Typography color="text.secondary">{job.location} - ${job.salary}</Typography>
+                <Typography variant="body2">{job.description}</Typography>
+                <Typography variant="body2" color="primary">{job.jobType}</Typography>
+              </CardContent>
+              <CardActions>
+                <Button color="primary" onClick={() => handleEditClick(job)}>Edit</Button>
+                <Button color="error" onClick={() => handleDeleteJob(job._id)}>Delete</Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Edit Job Modal */}
+      <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)}>
+        <DialogTitle>Edit Job</DialogTitle>
+        <DialogContent>
+          <TextField fullWidth name="title" label="Job Title" value={formData.title} onChange={handleChange} required sx={{ mb: 2 }} />
+          <TextField fullWidth name="description" label="Description" value={formData.description} onChange={handleChange} required sx={{ mb: 2 }} />
+          <TextField fullWidth name="requirements" label="Requirements" value={formData.requirements} onChange={handleChange} required sx={{ mb: 2 }} />
+          <TextField fullWidth name="location" label="Location" value={formData.location} onChange={handleChange} required sx={{ mb: 2 }} />
+          <TextField fullWidth name="salary" label="Salary" value={formData.salary} onChange={handleChange} required sx={{ mb: 2 }} />
+
+          {/* Job Type Dropdown */}
+          <Select fullWidth name="jobType" value={formData.jobType} onChange={handleJobTypeChange} required sx={{ mb: 2 }}>
+            <MenuItem value="Full-time">Full-time</MenuItem>
+            <MenuItem value="Part-time">Part-time</MenuItem>
+            <MenuItem value="Internship">Internship</MenuItem>
+          </Select>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditModal(false)}>Cancel</Button>
+          <Button onClick={handleSaveEdit} color="primary">Save</Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 };
 

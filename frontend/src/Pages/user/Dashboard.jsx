@@ -6,9 +6,6 @@ import {
   Container,
   Box,
   Grid,
-  Card,
-  CardContent,
-  CardActions,
   Avatar,
   Paper,
   List,
@@ -17,45 +14,40 @@ import {
   Divider,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import API from "../../api"; // Import Axios instance
+import API from "../../api";
 import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
-  const [user, setUser] = useState(null); // Store user info
-  const [jobs, setJobs] = useState([]); // Store jobs
+  const [user, setUser] = useState(null);
+  const [appliedJobs, setAppliedJobs] = useState([]);
   const navigate = useNavigate();
 
-  // Fetch User Info from localStorage
   useEffect(() => {
-    const fetchUser = async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user")); // User info from login
-      if (!storedUser) {
-        navigate("/signin");
-      } else {
-        setUser(storedUser);
-      }
-    };
-
-    fetchUser();
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      navigate("/signin");
+    }
   }, [navigate]);
 
-  // Fetch Jobs from Backend
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchAppliedJobs = async () => {
       try {
-        const res = await API.get("/jobs"); // Fetch from backend
-        setJobs(res.data);
+        const token = localStorage.getItem("token");
+        const res = await API.get("/jobs/applied-jobs", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAppliedJobs(res.data);
       } catch (err) {
-        console.error("Error fetching jobs:", err);
+        console.error("Error fetching applied jobs:", err);
       }
     };
-
-    fetchJobs();
+    fetchAppliedJobs();
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.clear();
     navigate("/signin");
   };
 
@@ -64,90 +56,51 @@ const UserDashboard = () => {
   return (
     <Box>
       {/* Navbar */}
-      <AppBar position="static" sx={{ backgroundColor: "primary.main" }}>
+      <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Job Portal
-          </Typography>
-          <Button color="inherit" onClick={handleLogout}>
-            Logout
-          </Button>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>Job Portal</Typography>
+          <Button color="inherit" onClick={handleLogout}>Logout</Button>
         </Toolbar>
       </AppBar>
 
-      {/* Dashboard Content */}
       <Container sx={{ py: 4 }}>
         <Grid container spacing={4}>
           {/* Profile Section */}
           <Grid item xs={12} md={4}>
             <Paper elevation={3} sx={{ p: 3 }}>
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <Avatar
-                  alt={user.name}
-                  src={user.avatarUrl || "https://source.unsplash.com/100x100/?portrait"}
-                  sx={{ width: 100, height: 100, mb: 2 }}
-                />
-                <Typography variant="h6" component="h2" sx={{ mb: 1 }}>
-                  {user.name}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {user.email}
-                </Typography>
+                <Avatar src={user.avatarUrl || "https://source.unsplash.com/100x100/?portrait"} sx={{ width: 100, height: 100, mb: 2 }} />
+                <Typography variant="h6">{user.name}</Typography>
+                <Typography variant="body1" color="text.secondary">{user.email}</Typography>
               </Box>
               <Divider sx={{ my: 3 }} />
+              <List>
+                <ListItem button onClick={() => navigate("/browse-jobs")}>
+                  <ListItemText primary="Browse Jobs" />
+                </ListItem>
+                <ListItem button onClick={() => navigate("/applied-jobs")}>
+                  <ListItemText primary="View Applied Jobs" />
+                </ListItem>
+                <ListItem button>
+                  <ListItemText primary="Update Profile (Coming Soon)" />
+                </ListItem>
+              </List>
             </Paper>
           </Grid>
 
-          {/* Job Listings Section */}
+          {/* Applied Jobs Section */}
           <Grid item xs={12} md={8}>
-            <Typography variant="h5" component="h1" sx={{ mb: 3 }}>
-              Job Listings
-            </Typography>
-            <Grid container spacing={3}>
-              {jobs.map((job) => (
-                <Grid item xs={12} key={job._id}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" component="h2">
-                        {job.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        {job.company} - {job.location}
-                      </Typography>
-                      <Typography variant="body1" sx={{ mt: 2 }}>
-                        {job.description}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button size="small" color="primary">
-                        Apply Now
-                      </Button>
-                      <Button size="small" color="secondary">
-                        Save Job
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
+            <Typography variant="h5" sx={{ mb: 3 }}>Applied Jobs</Typography>
+            <List>
+              {appliedJobs.map((job) => (
+                <ListItem key={job._id}>
+                  <ListItemText primary={job.title} secondary={`${job.company} - ${job.location}`} />
+                </ListItem>
               ))}
-            </Grid>
+            </List>
           </Grid>
         </Grid>
       </Container>
-
-      {/* Footer */}
-      <Box
-        sx={{
-          backgroundColor: "primary.main",
-          color: "white",
-          py: 4,
-          mt: 8,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body1">
-          &copy; {new Date().getFullYear()} Job Portal. All rights reserved.
-        </Typography>
-      </Box>
     </Box>
   );
 };
