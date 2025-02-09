@@ -13,6 +13,7 @@ const Signin = () => {
     e.preventDefault();
     try{
       const res = await API.post("/auth/login",{email, password,role});
+      localStorage.setItem("user", JSON.stringify({ name: res.data.name, email: res.data.email, role: res.data.role }));
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       res.data.role === "admin" ? navigate("/admin/dashboard") : navigate("/user/dashboard");
@@ -55,19 +56,6 @@ const Signin = () => {
               style: { borderRadius: 12 },
             }}
           />
-          <FormControl component="fieldset" sx={{ mb: 3 }}>
-            <FormLabel component="legend">Login as</FormLabel>
-            <RadioGroup
-              row
-              aria-label="role"
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <FormControlLabel value="user" control={<Radio />} label="User" />
-              <FormControlLabel value="admin" control={<Radio />} label="Admin" />
-            </RadioGroup>
-          </FormControl>
           <Button
             fullWidth
             variant="contained"

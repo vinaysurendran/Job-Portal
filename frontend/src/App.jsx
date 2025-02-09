@@ -5,8 +5,9 @@ import { Route, Router, Routes } from 'react-router'
 import Signin from './Pages/Signin'
 import Signup from './Pages/Signup'
 import Home from './Pages/Home'
-import UserDashboard from './Pages/user/UserDashboard'
-import AdminDashboard from './Pages/admin/AdminDashboard'
+import UserDashboard from './Pages/user/Dashboard'
+import AdminDashboard from './Pages/admin/Dashboard'
+import ProtectedRoute from "./components/ProtectedRoute";
 
 
 const PrivateRoute = ({ children, roleRequired }) => {
@@ -26,8 +27,15 @@ function App(){
       <Route path='/'Component={Home}/>
       <Route path='/signin'Component={Signin}/>
       <Route path='/signup' Component={Signup}/>
-      <Route path="/user/dashboard" element={<PrivateRoute><UserDashboard /></PrivateRoute>} />
-      <Route path="/admin/dashboard" element={<PrivateRoute roleRequired="admin"><AdminDashboard /></PrivateRoute>} />
+        {/* 🔹 User Protected Route */}
+        <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+          <Route path="/user/dashboard" element={<UserDashboard />} />
+        </Route>
+
+        {/* 🔹 Admin Protected Route */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Route>
     </Routes>
     </>
   )
