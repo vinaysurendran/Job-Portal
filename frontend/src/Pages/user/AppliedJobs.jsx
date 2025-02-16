@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, List, ListItem, ListItemText, Typography } from "@mui/material";
-import API from "../api";
+import API from "../../api"; 
+
 
 const AppliedJobs = () => {
   const [appliedJobs, setAppliedJobs] = useState([]);

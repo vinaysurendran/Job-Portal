@@ -5,15 +5,20 @@ import {
   Grid,
   Paper,
   Typography as MuiTypography,
+  Card,
+  CardContent,
+  CardMedia,
 } from '@mui/material';
 import React from 'react';
 import Navbar from '../components/Navbar';
+import { motion } from 'framer-motion';
 
 const HomePage = () => {
   return (
     <Box>
       <Box
         sx={{
+          position: 'relative',
           backgroundImage: 'url(https://source.unsplash.com/1600x900/?jobs,career)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -25,6 +30,16 @@ const HomePage = () => {
           textAlign: 'center',
         }}
       >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+          }}
+        />
         <Container>
           <MuiTypography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 2 }}>
             Find Your Dream Job
@@ -46,36 +61,47 @@ const HomePage = () => {
       {/* Features Section */}
       <Container sx={{ py: 8 }}>
         <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-              <MuiTypography variant="h5" component="h2" sx={{ mb: 2 }}>
-                Explore Opportunities
-              </MuiTypography>
-              <MuiTypography variant="body1">
-                Browse through a wide range of job listings tailored to your expertise.
-              </MuiTypography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-              <MuiTypography variant="h5" component="h2" sx={{ mb: 2 }}>
-                Apply Easily
-              </MuiTypography>
-              <MuiTypography variant="body1">
-                Submit your applications with just a few clicks and track your progress.
-              </MuiTypography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-              <MuiTypography variant="h5" component="h2" sx={{ mb: 2 }}>
-                Connect with Employers
-              </MuiTypography>
-              <MuiTypography variant="body1">
-                Build relationships with top employers and grow your career.
-              </MuiTypography>
-            </Paper>
-          </Grid>
+          {[
+            {
+              title: 'Explore Opportunities',
+              description: 'Browse through a wide range of job listings tailored to your expertise.',
+              image: 'https://source.unsplash.com/400x300/?opportunity',
+            },
+            {
+              title: 'Apply Easily',
+              description: 'Submit your applications with just a few clicks and track your progress.',
+              image: 'https://source.unsplash.com/400x300/?apply',
+            },
+            {
+              title: 'Connect with Employers',
+              description: 'Build relationships with top employers and grow your career.',
+              image: 'https://source.unsplash.com/400x300/?employer',
+            },
+          ].map((feature, index) => (
+            <Grid item xs={12} md={4} key={index}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Card elevation={3} sx={{ textAlign: 'center' }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={feature.image}
+                    alt={feature.title}
+                  />
+                  <CardContent>
+                    <MuiTypography variant="h5" component="h2" sx={{ mb: 2 }}>
+                      {feature.title}
+                    </MuiTypography>
+                    <MuiTypography variant="body1">
+                      {feature.description}
+                    </MuiTypography>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+          ))}
         </Grid>
       </Container>
 

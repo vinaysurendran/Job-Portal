@@ -183,7 +183,6 @@ const AdminDashboard = () => {
             onChange={handleChange} 
             required 
             sx={{ mb: 2 }} 
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           />
 
           {/* Job Type Dropdown */}

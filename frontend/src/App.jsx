@@ -9,7 +9,7 @@ import UserDashboard from './Pages/user/Dashboard'
 import AdminDashboard from './Pages/admin/Dashboard'
 import ProtectedRoute from "./components/ProtectedRoute";
 import BrowseJobs from './Pages/BrowseJobs'
-import AppliedJobs from './Pages/AppliedJobs'
+import AppliedJobs from './Pages/user/AppliedJobs'
 import ViewApplications from './Pages/admin/ViewApplications'
 
 
@@ -34,7 +34,6 @@ function App(){
         {/* 🔹 User Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/user/dashboard" element={<UserDashboard />} />
-          <Route path="/browse-jobs" element={<BrowseJobs />} />
           <Route path="/applied-jobs" element={<AppliedJobs />} />
         </Route>
 
