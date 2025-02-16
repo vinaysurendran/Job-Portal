@@ -25,11 +25,10 @@ const PrivateRoute = ({ children, roleRequired }) => {
 function App(){
   return (
     <>
-    <Navbar/>
     <Routes>
-      <Route path='/'Component={Home}/>
-      <Route path='/signin'Component={Signin}/>
-      <Route path='/signup' Component={Signup}/>
+      <Route path='/'element={<><Navbar /><Home /></>} />
+      <Route path='/signin'element={<><Navbar /><Signin /></>}/>
+      <Route path='/signup' element={<><Navbar /><Signup /></>}/>
       <Route path="/browse-jobs" element={<BrowseJobs />} />
         {/* 🔹 User Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>

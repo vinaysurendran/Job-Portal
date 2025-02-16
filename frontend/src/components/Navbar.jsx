@@ -1,97 +1,115 @@
-import { AppBar, Button, Toolbar, Typography, IconButton } from '@mui/material';
+import { 
+  AppBar, Button, Toolbar, Typography, 
+  IconButton, useMediaQuery 
+} from '@mui/material';
 import { Box } from '@mui/system';
-import WorkIcon from '@mui/icons-material/Work';
+import { Work as WorkIcon, Menu as MenuIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Navbar = () => {
-  // Style constants for a lighter theme
-  const navBarColors = {
-    primary: '#ffffff', // Light background
-    secondary: '#1976d2', // Primary color for buttons
-    hover: '#e3f2fd', // Light hover effect
-    text: '#000000', // Dark text for contrast
-  };
-
+  const isMobile = useMediaQuery('(max-width:900px)');
+  
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar 
-        position="static" 
+        position="fixed" 
         sx={{ 
-          backgroundColor: navBarColors.primary,
-          boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+          backdropFilter: 'blur(12px)',
+          background: 'rgba(255, 255, 255, 0.92)',
+          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
         }}
       >
-        <Toolbar sx={{ py: 1.5 }}>
-          {/* Logo and Title */}
-          <IconButton
-            size="medium"
-            edge="start"
-            color="inherit"
-            aria-label="job-portal-logo"
-            component={Link}to="/"
-            sx={{ mr: 1 }}
-          >
-            <WorkIcon sx={{ fontSize: '2rem', color: navBarColors.text }} />
-          </IconButton>
-          
-          <Typography 
-            variant="h5"
-            component="div"
-            sx={{ 
-              flexGrow: 1,
-              fontWeight: 600,
-              letterSpacing: '0.5px',
-              color: navBarColors.text,
-              fontFamily: 'BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-            }}
-          >
-            CareerConnect
-          </Typography>
+        <Toolbar sx={{ 
+          justifyContent: 'space-between',
+          py: 1,
+          px: { xs: 2, md: 4 }
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.6 }}>
+              <IconButton
+                component={Link}
+                to="/"
+                size="large"
+                edge="start"
+                sx={{ 
+                  p: 1,
+                  '&:hover': { background: 'rgba(25, 118, 210, 0.1)' }
+                }}
+              >
+                <WorkIcon sx={{ 
+                  fontSize: '2rem',
+                  color: 'primary.main',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                }} />
+              </IconButton>
+            </motion.div>
+            
+            <Typography 
+              variant="h5"
+              sx={{ 
+                fontWeight: 800,
+                background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                display: { xs: 'none', md: 'block' }
+              }}
+            >
+              CareerConnect
+            </Typography>
+          </Box>
 
-          {/* Navigation Links */}
-          <Button 
-            color="primary"
-            component={Link}
-            to="/signin"
-            sx={{
-              mx: 1.5,
-              fontSize: '1rem',
-              fontWeight: 500,
-              textTransform: 'none',
-              position: 'relative',
-              '&:hover': {
-                backgroundColor: navBarColors.hover,
-                borderRadius: '4px',
-              },
-            }}
-          >
-            Sign In
-          </Button>
-          
-          <Button 
-            variant="contained"
-            component={Link}
-            to="/signup"
-            sx={{
-              ml: 1.5,
-              px: 3,
-              py: 1,
-              fontSize: '1rem',
-              fontWeight: 600,
-              textTransform: 'none',
-              backgroundColor: navBarColors.secondary,
-              borderRadius: '8px',
-              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                backgroundColor: '#1565c0', // Darker shade on hover
-                transform: 'translateY(-1px)',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-              },
-            }}
-          >
-            Get Started
-          </Button>
+          {isMobile ? (
+            <IconButton size="large" color="inherit">
+              <MenuIcon sx={{ color: 'text.primary' }} />
+            </IconButton>
+          ) : (
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Button
+                component={Link}
+                to="/signin"
+                sx={{
+                  px: 3,
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  color: 'text.primary',
+                  background: 'rgba(25, 118, 210, 0.1)',
+                  border: '1px solid rgba(25, 118, 210, 0.2)',
+                  borderRadius: '50px',
+                  '&:hover': {
+                    background: 'rgba(25, 118, 210, 0.2)',
+                    transform: 'translateY(-2px)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Sign In
+              </Button>
+              
+              <Button 
+                variant="contained"
+                component={Link}
+                to="/signup"
+                sx={{
+                  px: 4,
+                  py: 1,
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
+                  borderRadius: '50px',
+                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 8px rgba(0, 0, 0, 0.2)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Sign Up
+              </Button>
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
     </Box>

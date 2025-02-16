@@ -1,8 +1,13 @@
-import { AlternateEmail } from '@mui/icons-material';
-import { Box, Button, TextField, Typography, Paper, Container, FormControl, InputLabel, MenuItem, Select, RadioGroup, FormControlLabel, Radio, FormLabel } from '@mui/material';
+import { 
+  Box, Button, TextField, Typography, Container, 
+  FormControl, FormLabel, RadioGroup, FormControlLabel, Radio,
+  Divider
+} from '@mui/material';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from "../api";
+import { motion } from 'framer-motion';
+import { Google } from '@mui/icons-material';
+import API from '../api';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -31,100 +36,182 @@ const Signup = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 8, borderRadius: 2 }}>
-        <Typography variant="h4" align="center" sx={{ mb: 4, fontWeight: 'bold', color: 'primary.main' }}>
-          Create Your Account
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            sx={{ mb: 3 }}
-            required
-            variant="outlined"
-            InputProps={{
-              style: { borderRadius: 12 },
-            }}
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            sx={{ mb: 3 }}
-            required
-            type="email"
-            variant="outlined"
-            InputProps={{
-              style: { borderRadius: 12 },
-            }}
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            sx={{ mb: 3 }}
-            required
-            variant="outlined"
-            InputProps={{
-              style: { borderRadius: 12 },
-            }}
-          />
-          <TextField
-            fullWidth
-            label="Confirm Password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            sx={{ mb: 3 }}
-            required
-            variant="outlined"
-            InputProps={{
-              style: { borderRadius: 12 },
-            }}
-          />
-          <FormControl component="fieldset" sx={{ mb: 3 }}>
-            <FormLabel component="legend">Select Role</FormLabel>
-            <RadioGroup
-              row
-              aria-label="role"
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
+    <Box sx={{
+      minHeight: '120vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(45deg, #1976d2 0%, #4CAF50 100%)',
+      p: 2
+    }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Box sx={{
+          backdropFilter: 'blur(16px)',
+          background: 'rgba(255, 255, 255, 0.9)',
+          borderRadius: 4,
+          p: 6,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          width: { xs: '100%', sm: 500 },
+          border: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          <Typography variant="h3" sx={{ 
+            mb: 4, 
+            fontWeight: 800,
+            background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textAlign: 'center'
+          }}>
+            Create Account
+          </Typography>
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              sx={{ mb: 3 }}
+              required
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  borderRadius: 3,
+                  transition: '0.3s',
+                  '&:hover fieldset': { borderColor: 'primary.main' },
+                }
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{ mb: 3 }}
+              required
+              type="email"
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  borderRadius: 3,
+                  transition: '0.3s',
+                  '&:hover fieldset': { borderColor: 'primary.main' },
+                }
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              sx={{ mb: 3 }}
+              required
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  borderRadius: 3,
+                  transition: '0.3s',
+                  '&:hover fieldset': { borderColor: 'primary.main' },
+                }
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={{ mb: 3 }}
+              required
+              variant="outlined"
+              InputProps={{
+                sx: {
+                  borderRadius: 3,
+                  transition: '0.3s',
+                  '&:hover fieldset': { borderColor: 'primary.main' },
+                }
+              }}
+            />
+
+            <FormControl component="fieldset" fullWidth sx={{ mb: 3 }}>
+              <FormLabel sx={{ mb: 1, fontWeight: 600 }}>Select Role</FormLabel>
+              <RadioGroup
+                row
+                aria-label="role"
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                sx={{
+                  '& .MuiButtonBase-root': {
+                    padding: '8px 16px',
+                    borderRadius: 2,
+                    '&.Mui-selected': {
+                      background: 'rgba(25, 118, 210, 0.1)'
+                    }
+                  }
+                }}
+              >
+                <FormControlLabel 
+                  value="user" 
+                  control={<Radio />} 
+                  label="User" 
+                  sx={{ mr: 2 }}
+                />
+                <FormControlLabel 
+                  value="admin" 
+                  control={<Radio />} 
+                  label="Admin" 
+                />
+              </RadioGroup>
+            </FormControl>
+
+            <Button
+              fullWidth
+              variant="contained"
+              type="submit"
+              sx={{
+                py: 2,
+                borderRadius: 3,
+                fontSize: '1rem',
+                fontWeight: 700,
+                background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 16px rgba(25, 118, 210, 0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
             >
-              <FormControlLabel value="user" control={<Radio />} label="User" />
-              <FormControlLabel value="admin" control={<Radio />} label="Admin" />
-            </RadioGroup>
-          </FormControl>
-          <Button
-            fullWidth
-            variant="contained"
-            type="submit"
-            sx={{
-              py: 1.5,
-              borderRadius: 12,
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              backgroundColor: 'primary.main',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            }}
-          >
-            Sign Up
-          </Button>
-        </form>
-        <Typography variant="body2" align="center" sx={{ mt: 3, color: 'text.secondary' }}>
-          Already have an account? <a href="/signin" style={{ color: '#1976d2', textDecoration: 'none' }}>Sign in</a>
-        </Typography>
-      </Paper>
-    </Container>
+              Create Account
+            </Button>
+          </form>
+
+          <Typography variant="body2" align="center" sx={{ mt: 3, color: 'text.secondary' }}>
+            Already have an account?{' '}
+            <Button 
+              component="a" 
+              href="/signin" 
+              sx={{ 
+                textTransform: 'none', 
+                color: 'primary.main',
+                fontWeight: 600,
+                '&:hover': { textDecoration: 'underline' }
+              }}
+            >
+              Sign In
+            </Button>
+          </Typography>
+        </Box>
+      </motion.div>
+    </Box>
   );
 };
 
