@@ -1,224 +1,292 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { styled, useTheme } from '@mui/material/styles';
-import {
-  Button, Container, Box, Grid, Typography, Link, Skeleton, Stack, IconButton
+import React, { useMemo } from 'react';
+import { Work as WorkIcon } from '@mui/icons-material';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import { 
+  Button, 
+  Container, 
+  Box, 
+  Grid,
+  Tooltip,
+  Typography, 
+  AppBar, 
+  Toolbar, 
+  IconButton,
+  Fab, 
+  Hidden,
+  Chip
 } from '@mui/material';
-import {
-  RocketLaunch, TrendingUp, HealthAndSafety,
-  Brush, Engineering, Send, WorkHistory, CheckCircleOutline,
-  VerifiedUser, LightbulbOutlined, Facebook as FacebookIcon,
-  Twitter as TwitterIcon, LinkedIn as LinkedInIcon
-} from '@mui/icons-material';
-import { motion, useScroll, useSpring } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import API from '../api';
+import { 
+  GitHub, 
+  Twitter, 
+  Menu
+} from '@mui/icons-material';
+import { 
+  motion, 
+  useScroll, 
+  useSpring
+} from 'framer-motion';
+import { useMediaQuery } from '@mui/material';
 
-// ------------------------ Styled Components ------------------------
-const GradientTypography = styled(Typography)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-}));
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#4CAF50',
+    },
+    background: {
+      default: '#fafafa',
+    },
+  },
+  typography: {
+    fontFamily: 'Inter, Arial, sans-serif',
+    h1: {
+      fontWeight: 900,
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontWeight: 800,
+      lineHeight: 1.3,
+    },
+  },
+});
 
-const SectionHeading = styled(GradientTypography)(({ theme }) => ({
-  textAlign: 'center',
-  fontWeight: 900,
-  fontSize: '3rem',
-  marginBottom: theme.spacing(8),
-}));
-
-const StyledContainer = styled(Container)(({ theme }) => ({
-  paddingTop: theme.spacing(8),
-  paddingBottom: theme.spacing(8),
-}));
-
-const CardBox = styled(motion.Box)(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: 12,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.06)',
-  textAlign: 'center',
-  transition: 'transform 0.2s, box-shadow 0.2s',
+const GlassButton = styled(Button)(({ theme }) => ({
+  backdropFilter: 'blur(12px)',
+  background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.2), rgba(33, 150, 243, 0.1))',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  borderRadius: '16px',
+  padding: '18px 48px',
+  fontWeight: 700,
+  color: '#fff',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   '&:hover': {
-    boxShadow: '0 32px 64px rgba(0, 0, 0, 0.08)',
+    transform: 'translateY(-3px)',
+    boxShadow: '0 12px 32px rgba(25, 118, 210, 0.3)',
+    background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.3), rgba(33, 150, 243, 0.2))',
   },
 }));
 
-const IconBox = styled(Box)(({ theme, color }) => ({
-  width: 80,
-  height: 80,
-  borderRadius: '50%',
-  backgroundColor: `${color}1A`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: '0 auto',
-  marginBottom: theme.spacing(3),
-  color: color,
-}));
-
-// ------------------------ Section Components ------------------------
-const HeroSection = () => {
-  const navigate = useNavigate();
-  const theme = useTheme();
-
-  return (
-    <Box id="hero" sx={{
-      pt: { xs: 12, md: 16 },
-      pb: { xs: 8, md: 12 },
-      background: 'radial-gradient(circle at 20% top, rgba(25,118,210,0.08), transparent 50%), radial-gradient(circle at 80% bottom, rgba(76,175,80,0.08), transparent 50%)'
-    }}>
-      <StyledContainer maxWidth="xl">
-        <Grid container spacing={5} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }}>
-              <GradientTypography variant="h1" sx={{ fontWeight: 900, mb: 3.5 }}>
-                Find Your Dream Career
-              </GradientTypography>
-              <Typography variant="subtitle1" sx={{ mb: 5, color: 'text.secondary' }}>
-                Streamline your job search with our intelligent platform
-              </Typography>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate('/jobs')}
-                sx={{ px: 6, py: 2, fontWeight: 700 }}
-              >
-                Get Started
-              </Button>
-            </motion.div>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}>
-              <Box
-                component="img"
-                src="https://img.freepik.com/free-vector/modern-isometric-illustration-job-search-concept_187891-139.jpg"
-                alt="Career search"
-                sx={{ width: '100%', borderRadius: 4 }}
-              />
-            </motion.div>
-          </Grid>
-        </Grid>
-      </StyledContainer>
-    </Box>
-  );
-};
-
-const ValuePropositionSection = () => {
-  const valueProps = [
-    {
-      title: 'Smart Matching',
-      description: 'AI-powered job recommendations based on your profile',
-      icon: <VerifiedUser fontSize="large" />,
-      color: '#4CAF50'
-    },
-    {
-      title: 'Easy Applications',
-      description: 'One-click apply to thousands of positions',
-      icon: <Send fontSize="large" />,
-      color: '#2196f3'
-    },
-  ];
-
-  return (
-    <Box id="value-props" sx={{ bgcolor: 'background.paper' }}>
-      <StyledContainer maxWidth="lg">
-        <SectionHeading>Why Choose Us</SectionHeading>
-        <Grid container spacing={4}>
-          {valueProps.map((prop) => (
-            <Grid item xs={12} md={6} key={prop.title}>
-              <CardBox whileHover={{ scale: 1.05 }}>
-                <IconBox color={prop.color}>{prop.icon}</IconBox>
-                <Typography variant="h6" fontWeight={700}>{prop.title}</Typography>
-                <Typography variant="body2" color="text.secondary">{prop.description}</Typography>
-              </CardBox>
-            </Grid>
-          ))}
-        </Grid>
-      </StyledContainer>
-    </Box>
-  );
-};
-
-const CategoryGrid = ({ categories, loading }) => {
-  const navigate = useNavigate();
-
-  return (
-    <Box id="categories">
-      <StyledContainer maxWidth="lg">
-        <SectionHeading>Popular Categories</SectionHeading>
-        <Grid container spacing={3}>
-          {loading ? (
-            Array.from({ length: 4 }).map((_, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
-                <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 3 }} />
-              </Grid>
-            ))
-          ) : (
-            categories.map((category) => (
-              <Grid item xs={12} sm={6} md={3} key={category._id}>
-                <CardBox whileHover={{ scale: 1.03 }} onClick={() => navigate(`/jobs?category=${category.name}`)}>
-                  <IconBox color={category.color}>
-                    {category.icon === 'tech' ? <Engineering /> : <WorkHistory />}
-                  </IconBox>
-                  <Typography variant="h6" fontWeight={700}>{category.name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {category.jobCount}+ positions
-                  </Typography>
-                </CardBox>
-              </Grid>
-            ))
-          )}
-        </Grid>
-      </StyledContainer>
-    </Box>
-  );
-};
-
-CategoryGrid.propTypes = {
-  categories: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
-};
-
-// ------------------------ Main Component ------------------------
 const HomePage = () => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width:900px)');
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await API.get("/jobs/categories");
-        setCategories(res.data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
-  }, []);
+  const processSteps = useMemo(() => [
+    { title: 'Create Profile', description: 'Build your professional identity' },
+    { title: 'Discover Jobs', description: 'Find your perfect opportunity' },
+    { title: 'Apply Smart', description: 'Apply with a Single Click' },
+    { title: 'Get Hired', description: 'Start your new career journey' },
+  ], []);
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-      <motion.div style={{
-        scaleX,
-        height: '4px',
-        background: 'linear-gradient(90deg, #1976d2, #4CAF50)',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999
-      }} />
+    <ThemeProvider theme={theme}>
+      <Box sx={{ 
+        bgcolor: 'background.default', 
+        minHeight: '100vh',
+        transition: 'background 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+      }}>
+        {/* Scroll Progress Bar */}
+        <motion.div 
+          style={{ 
+            scaleX, 
+            height: '4px', 
+            background: 'linear-gradient(90deg, #1976d2,rgba(51, 197, 56, 0.92))',
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            zIndex: 9999 
+          }} 
+        />
+        {/* Hero Section */}
+        <Box id="hero" sx={{ 
+          pt: 18, 
+          pb: 12,
+          background: 'linear-gradient(135deg,rgb(22, 107, 205) 0%,rgba(12, 186, 70, 0.69) 100%)',
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          '&:after': {
+            content: '""',
+            position: 'absolute',
+            bottom: -50,
+            left: 0,
+            right: 0,
+            height: '100px',
+            background: '#fafafa',
+            transform: 'skewY(-3deg)',
+            zIndex: 0
+          }
+        }}>
+          <Container maxWidth="xl">
+            <Grid container spacing={6} alignItems="center">
+              <Grid item xs={12} md={6} sx={{ position: 'relative', zIndex: 1 }}>
+                <motion.div 
+                  initial={{ opacity: 0, y: 50 }} 
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                >
+                  <Chip 
+                    label="🚀 #1 Job Platform of 2025" 
+                    color="secondary" 
+                    sx={{ 
+                      mb: 3, 
+                      fontWeight: 700, 
+                      backdropFilter: 'blur(10px)',
+                      background: 'rgb(132, 231, 52)',
+                      fontSize: '1rem',
+                      py: 1
+                    }}
+                  />
+                  <Typography variant="h1" sx={{ 
+                    fontWeight: 900, 
+                    lineHeight: 1.2, 
+                    mb: 3,
+                    fontSize: { xs: '2.5rem', md: '4rem' },
+                    background: 'linear-gradient(45deg,rgb(148, 251, 255),rgb(125, 240, 198))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}>
+                    Launch Your Dream Career
+                  </Typography>
+                  <Typography variant="h5" sx={{ 
+                    mb: 5, 
+                    fontWeight: 400,
+                    color: 'rgba(255, 255, 255, 0.73)'
+                  }}>
+                    Connect with innovative companies and find opportunities that match your skills and ambitions
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <GlassButton 
+                      variant="contained" 
+                      size="large"
+                      onClick={() => navigate('/signup')}
+                      endIcon={<WorkIcon sx={{ fontSize: 28 }} />}
+                    >
+                      Explore Opportunities
+                    </GlassButton>
+                  </Box>
+                </motion.div>
+              </Grid>
+              <Grid item xs={12} md={6} sx={{ position: 'relative', zIndex: 1 }}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Box sx={{
+                    position: 'relative',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    boxShadow: '0 24px 48px rgba(0, 0, 0, 0.3)',
+                    '&:before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'linear-gradient(45deg, rgba(100, 181, 246, 0.2), rgba(77, 208, 225, 0.2))',
+                      mixBlendMode: 'soft-light'
+                    }
+                  }}>
+                    <img 
+                      src="https://img.freepik.com/free-vector/career-path-concept-illustration_114360-14354.jpg?t=st=1739783270~exp=1739786870~hmac=37b24a76f0d6c0e18de392c3782dbee4f52ca620d4360b9a06db849d52d4d30c&w=996" 
+                      alt="Career illustration" 
+                      style={{ 
+                        width: '100%', 
+                        height: 'auto',
+                        display: 'block' 
+                      }}
+                    />
+                  </Box>
+                </motion.div>
+              </Grid>
+            </Grid>
+          </Container>
+        </Box>
 
-      <HeroSection />
-      <ValuePropositionSection />
-      <CategoryGrid categories={categories} loading={loading} />
-    </Box>
+        {/* Process Section */}
+        <Box id="process" sx={{ py: 10, bgcolor: 'background.paper' }}>
+          <Container>
+            <Typography variant="h2" sx={{ 
+              textAlign: 'center', 
+              mb: 8, 
+              fontWeight: 900,
+              fontSize: { xs: '2.5rem', md: '3rem' }
+            }}>
+              How It Works
+            </Typography>
+            <Grid container spacing={4} justifyContent="center">
+              {processSteps.map((step, index) => (
+                <Grid item xs={12} md ={6} lg={3} key={step.title}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "0px 0px -100px 0px" }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Box sx={{
+                      p: 4,
+                      height: '100%',
+                      borderRadius: 4,
+                      background: 'linear-gradient(145deg, #ffffff, #f5f5f5)',
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+                      transition: 'transform 0.3s, box-shadow 0.3s',
+                      '&:hover': {
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 16px 32px rgba(25, 118, 210, 0.15)'
+                      }
+                    }}>
+                      <Box sx={{
+                        width: 72,
+                        height: 72,
+                        borderRadius: '50%',
+                        bgcolor: 'primary.main',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 3,
+                        boxShadow: '0 8px 16px rgba(25, 118, 210, 0.2)'
+                      }}>
+                        <Typography variant="h3" sx={{ 
+                          color: 'white', 
+                          fontWeight: 700 
+                        }}>
+                          {index + 1}
+                        </Typography>
+                      </Box>
+                      <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                        {step.title}
+                      </Typography>
+                      <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        {step.description}
+                      </Typography>
+                    </Box>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
+
+        {/* Social Links */}
+        <Box sx={{ position: 'fixed', bottom: 20, right: 20, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Tooltip title="GitHub" arrow>
+            <Fab sx={{
+              background: 'linear-gradient(45deg, #1DA1F2, #0d8ecf)',
+              '&:hover': { transform: 'scale(1.1)' }
+            }} onClick={() => window.open('https://github.com/vinaysurendran/Job-Portal')}>
+              <GitHub />
+            </Fab>
+          </Tooltip>
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
 };
 
