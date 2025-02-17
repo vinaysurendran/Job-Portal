@@ -1,356 +1,223 @@
-import React, { useState, useMemo } from 'react';
-import { Work as WorkIcon } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
-import { 
-  Button, 
-  Container, 
-  Box, 
-  Grid,
-  Tooltip,
-  Typography, 
-  AppBar, 
-  Toolbar, 
-  IconButton,
-  Avatar, 
-  Chip, 
-  Fab, 
-  Fade, 
-  Snackbar, 
-  Alert, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent,
-  TextField, 
-  useMediaQuery, 
-  Divider, 
-  useScrollTrigger, 
-  Slide,
-  InputAdornment
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { styled, useTheme } from '@mui/material/styles';
+import {
+  Button, Container, Box, Grid, Typography, Link, Skeleton, Stack, IconButton
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
-import { 
-  LinkedIn, 
-  GitHub, 
-  Twitter, 
-  Close, 
-  Menu, 
-  Email, 
-  Lock, 
-  Google 
+import {
+  RocketLaunch, TrendingUp, HealthAndSafety,
+  Brush, Engineering, Send, WorkHistory, CheckCircleOutline,
+  VerifiedUser, LightbulbOutlined, Facebook as FacebookIcon,
+  Twitter as TwitterIcon, LinkedIn as LinkedInIcon
 } from '@mui/icons-material';
-import { 
-  motion, 
-  useScroll, 
-  useSpring, 
-  AnimatePresence 
-} from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import API from '../api';
 
+// ------------------------ Styled Components ------------------------
+const GradientTypography = styled(Typography)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+}));
 
-const GlassButton = styled(Button)(({ theme }) => ({
-  backdropFilter: 'blur(12px)',
-  background: 'rgba(25, 118, 210, 0.1)',
-  border: '1px solid rgba(25, 118, 210, 0.2)',
-  borderRadius: '50px',
-  padding: '16px 40px',
-  fontWeight: 700,
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+const SectionHeading = styled(GradientTypography)(({ theme }) => ({
+  textAlign: 'center',
+  fontWeight: 900,
+  fontSize: '3rem',
+  marginBottom: theme.spacing(8),
+}));
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  paddingTop: theme.spacing(8),
+  paddingBottom: theme.spacing(8),
+}));
+
+const CardBox = styled(motion.Box)(({ theme }) => ({
+  padding: theme.spacing(4),
+  borderRadius: 12,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.06)',
+  textAlign: 'center',
+  transition: 'transform 0.2s, box-shadow 0.2s',
   '&:hover': {
-    transform: 'translateY(-3px)',
-    boxShadow: '0 8px 24px rgba(25, 118, 210, 0.2)',
+    boxShadow: '0 32px 64px rgba(0, 0, 0, 0.08)',
   },
 }));
 
-const HomePage = () => {
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const isMobile = useMediaQuery('(max-width:900px)');
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+const IconBox = styled(Box)(({ theme, color }) => ({
+  width: 80,
+  height: 80,
+  borderRadius: '50%',
+  backgroundColor: `${color}1A`,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '0 auto',
+  marginBottom: theme.spacing(3),
+  color: color,
+}));
+
+// ------------------------ Section Components ------------------------
+const HeroSection = () => {
   const navigate = useNavigate();
-
-  const categories = useMemo(() => [
-    { name: 'Tech', icon: '💻', jobs: 3200 },
-    { name: 'Finance', icon: '💰', jobs: 1500 },
-    { name: 'Healthcare', icon: '🏥', jobs: 2750 },
-    { name: 'Engineering', icon: '⚙️', jobs: 4200 },
-    { name: 'Design', icon: '🎨', jobs: 1800 },
-    { name: 'Marketing', icon: '📈', jobs: 2100 },
-  ], []);
-
-  const processSteps = [
-    { title: 'Create Profile', description: 'Build your professional identity' },
-    { title: 'Discover Jobs', description: 'Find your perfect opportunity' },
-    { title: 'Apply Smart', description: 'Use AI-powered applications' },
-    { title: 'Get Hired', description: 'Start your new career journey' },
-  ];
-
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      const yOffset = -80;
-      const y = section.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-  };
-
-  const handleAuthSubmit = (e) => {
-    e.preventDefault();
-    setShowAuthModal(null);
-    setOpenSnackbar(true);
-  };
+  const theme = useTheme();
 
   return (
-    <Box sx={{ 
-      bgcolor: '#fafafa', 
-      minHeight: '100vh',
-      transition: 'background 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+    <Box id="hero" sx={{
+      pt: { xs: 12, md: 16 },
+      pb: { xs: 8, md: 12 },
+      background: 'radial-gradient(circle at 20% top, rgba(25,118,210,0.08), transparent 50%), radial-gradient(circle at 80% bottom, rgba(76,175,80,0.08), transparent 50%)'
     }}>
-      {/* Animated Scroll Progress */}
-      <motion.div style={{ 
-        scaleX, 
-        height: '4px', 
+      <StyledContainer maxWidth="xl">
+        <Grid container spacing={5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }}>
+              <GradientTypography variant="h1" sx={{ fontWeight: 900, mb: 3.5 }}>
+                Find Your Dream Career
+              </GradientTypography>
+              <Typography variant="subtitle1" sx={{ mb: 5, color: 'text.secondary' }}>
+                Streamline your job search with our intelligent platform
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate('/jobs')}
+                sx={{ px: 6, py: 2, fontWeight: 700 }}
+              >
+                Get Started
+              </Button>
+            </motion.div>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }}>
+              <Box
+                component="img"
+                src="https://img.freepik.com/free-vector/modern-isometric-illustration-job-search-concept_187891-139.jpg"
+                alt="Career search"
+                sx={{ width: '100%', borderRadius: 4 }}
+              />
+            </motion.div>
+          </Grid>
+        </Grid>
+      </StyledContainer>
+    </Box>
+  );
+};
+
+const ValuePropositionSection = () => {
+  const valueProps = [
+    {
+      title: 'Smart Matching',
+      description: 'AI-powered job recommendations based on your profile',
+      icon: <VerifiedUser fontSize="large" />,
+      color: '#4CAF50'
+    },
+    {
+      title: 'Easy Applications',
+      description: 'One-click apply to thousands of positions',
+      icon: <Send fontSize="large" />,
+      color: '#2196f3'
+    },
+  ];
+
+  return (
+    <Box id="value-props" sx={{ bgcolor: 'background.paper' }}>
+      <StyledContainer maxWidth="lg">
+        <SectionHeading>Why Choose Us</SectionHeading>
+        <Grid container spacing={4}>
+          {valueProps.map((prop) => (
+            <Grid item xs={12} md={6} key={prop.title}>
+              <CardBox whileHover={{ scale: 1.05 }}>
+                <IconBox color={prop.color}>{prop.icon}</IconBox>
+                <Typography variant="h6" fontWeight={700}>{prop.title}</Typography>
+                <Typography variant="body2" color="text.secondary">{prop.description}</Typography>
+              </CardBox>
+            </Grid>
+          ))}
+        </Grid>
+      </StyledContainer>
+    </Box>
+  );
+};
+
+const CategoryGrid = ({ categories, loading }) => {
+  const navigate = useNavigate();
+
+  return (
+    <Box id="categories">
+      <StyledContainer maxWidth="lg">
+        <SectionHeading>Popular Categories</SectionHeading>
+        <Grid container spacing={3}>
+          {loading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <Grid item xs={12} sm={6} md={3} key={index}>
+                <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 3 }} />
+              </Grid>
+            ))
+          ) : (
+            categories.map((category) => (
+              <Grid item xs={12} sm={6} md={3} key={category._id}>
+                <CardBox whileHover={{ scale: 1.03 }} onClick={() => navigate(`/jobs?category=${category.name}`)}>
+                  <IconBox color={category.color}>
+                    {category.icon === 'tech' ? <Engineering /> : <WorkHistory />}
+                  </IconBox>
+                  <Typography variant="h6" fontWeight={700}>{category.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {category.jobCount}+ positions
+                  </Typography>
+                </CardBox>
+              </Grid>
+            ))
+          )}
+        </Grid>
+      </StyledContainer>
+    </Box>
+  );
+};
+
+CategoryGrid.propTypes = {
+  categories: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+};
+
+// ------------------------ Main Component ------------------------
+const HomePage = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await API.get("/jobs/categories");
+        setCategories(res.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  return (
+    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+      <motion.div style={{
+        scaleX,
+        height: '4px',
         background: 'linear-gradient(90deg, #1976d2, #4CAF50)',
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        zIndex: 9999 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999
       }} />
 
-{/* Hero Section */}
-<Box id="hero" sx={{ pt: 18, pb: 12 }}>
-  <Container maxWidth="xl">
-    <Grid container spacing={6} alignItems="center">
-      <Grid item xs={12} md={6}>
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }} 
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <Chip 
-            label="🚀 #1 Job Platform of 2025" 
-            color="secondary" 
-            sx={{ mb: 3, fontWeight: 700, backdropFilter: 'blur(10px)' }}
-          />
-          <Typography variant="h1" sx={{ 
-            fontWeight: 900, 
-            lineHeight: 1.2, 
-            mb: 3,
-            background: 'linear-gradient(45deg, #1976d2, #4CAF50)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}>
-            Transform Your Career Journey
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
-            <GlassButton 
-              variant="outlined" 
-              size="large"
-              onClick={() => scrollToSection('process')}
-            >
-              Explore Jobs
-            </GlassButton>
-          </Box>
-        </motion.div>
-      </Grid>
-
-      {/* Image Section */}
-      <Grid item xs={12} md={6}>
-        <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <Box
-            component="img"
-            src="https://cdn-icons-png.flaticon.com/512/6214/6214076.png"
-            alt="Frontend developer illustration"
-            sx={{
-              width: '100%',
-              height: 'auto',
-              maxWidth: 600,
-              borderRadius: 4,
-              boxShadow: '0 24px 48px rgba(0, 0, 0, 0.1)',
-              transform: 'perspective(1000px) rotateY(-10deg)',
-              transition: 'transform 0.3s ease',
-              '&:hover': {
-                transform: 'perspective(1000px) rotateY(-5deg)'
-              }
-            }}
-          />
-        </motion.div>
-      </Grid>
-    </Grid>
-  </Container>
-</Box>
-      {/* Categories Grid */}
-      <Box id="categories" sx={{ py: 10, bgcolor: 'background.paper' }}>
-        <Container>
-          <Typography variant="h2" sx={{ textAlign: 'center', mb: 8, fontWeight: 900 }}>
-            Explore Opportunities
-          </Typography>
-          <Grid container spacing={4} sx={{ overflowX: 'auto', pb: 2 }}>
-            {categories.map((category, i) => (
-              <Grid item xs={12} sm={6} md={4} lg ={3} key={category.name}>
-                <motion.div 
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Box sx={{ 
-                    p: 4, 
-                    borderRadius: '24px', 
-                    bgcolor: 'background.default',
-                    boxShadow: 3,
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}>
-                    <Typography variant="h3" sx={{ mb: 2 }}>
-                      {category.icon}
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                      {category.name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.8 }}>
-                      {category.jobs.toLocaleString()}+ Open Roles
-                    </Typography>
-                  </Box>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* Process Section */}
-      <Box id="process" sx={{ py: 10 }}>
-        <Container>
-          <Typography variant="h2" sx={{ textAlign: 'center', mb: 8, fontWeight: 900 }}>
-            Our Process
-          </Typography>
-          <Grid container spacing={8}>
-            {processSteps.map((step, index) => (
-              <Grid item xs={12} md={3} key={step.title}>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <Box sx={{
-                    p: 4,
-                    textAlign: 'center',
-                    position: 'relative',
-                  }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                      {step.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      {step.description}
-                    </Typography>
-                  </Box>
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* Auth Modal */}
-      <Dialog open={Boolean(showAuthModal)} onClose={() => setShowAuthModal(null)}>
-        <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            {showAuthModal === 'signin' ? 'Sign In' : 'Create Account'}
-            <IconButton onClick={() => setShowAuthModal(null)}>
-              <Close />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleAuthSubmit}>
-            <TextField 
-              label="Email" 
-              type="email" 
-              fullWidth 
-              required 
-              sx={{ mb: 2 }} 
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField 
-              label="Password" 
-              type="password" 
-              fullWidth 
-              required 
-              sx={{ mb: 2 }} 
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Lock />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button 
-              fullWidth 
-              variant="contained" 
-              type="submit" 
-              sx={{ mt: 2, borderRadius: '50px', py: 1.5 }}
-            >
-              Continue
-            </Button>
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Typography variant="body2">or</Typography>
-              <Button 
-                variant="outlined" 
-                startIcon={<Google />} 
-                fullWidth 
-                sx={{ mt: 1 }}
-              >
-                Sign in with Google
-              </Button>
-            </Box>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Social Links */}
-      <Fade in timeout={1000}>
-        <Box sx={{ position: 'fixed', right: 32, bottom: 32, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Tooltip title="LinkedIn" arrow>
-            <Fab color="primary" onClick={() => window.open('https://linkedin.com', '_blank')}>
-              <LinkedIn />
-            </Fab>
-          </Tooltip>
-          <Tooltip title="GitHub" arrow>
-            <Fab color="primary" onClick={() => window.open('https:// github.com', '_blank')}>
-              <GitHub />
-            </Fab>
-          </Tooltip>
-          <Tooltip title="Twitter" arrow>
-            <Fab color="primary" onClick={() => window.open('https://twitter.com', '_blank')}>
-              <Twitter />
-            </Fab>
-          </Tooltip>
-        </Box>
-      </Fade>
-
-      {/* Notifications */}
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
-        <Alert severity="success">
-          Action completed successfully!
-        </Alert>
-      </Snackbar>
+      <HeroSection />
+      <ValuePropositionSection />
+      <CategoryGrid categories={categories} loading={loading} />
     </Box>
   );
 };

@@ -29,11 +29,11 @@ function App(){
       <Route path='/'element={<><Navbar /><Home /></>} />
       <Route path='/signin'element={<><Navbar /><Signin /></>}/>
       <Route path='/signup' element={<><Navbar /><Signup /></>}/>
-      <Route path="/browse-jobs" element={<BrowseJobs />} />
         {/* 🔹 User Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
           <Route path="/user/dashboard" element={<UserDashboard />} />
           <Route path="/applied-jobs" element={<AppliedJobs />} />
+          <Route path="/browse-jobs" element={<BrowseJobs />} />
         </Route>
 
         {/* 🔹 Admin Protected Route */}
