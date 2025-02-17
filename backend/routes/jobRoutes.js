@@ -4,7 +4,7 @@ const User = require("../models/User");
 const router = express.Router();
 const { verifyToken, isAdmin } = require("../middleware/auth"); // Add Middleware
 
-// ✅ Apply for a Job
+// Apply for a Job
 router.post("/:id/apply", verifyToken, async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -28,7 +28,7 @@ router.post("/:id/apply", verifyToken, async (req, res) => {
 });
 
 
-// ✅ Get User's Applied Jobs
+// Get User's Applied Jobs
 router.get("/applied-jobs", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("appliedJobs");
@@ -45,7 +45,7 @@ router.post("/", verifyToken, isAdmin, async (req, res) => {
   try {
     console.log("Job Create Request Body:", req.body); // Debugging
 
-    const { _id, ...jobData } = req.body; // ✅ Remove `_id` if present
+    const { _id, ...jobData } = req.body;
     const job = new Job(jobData);
 
     await job.save();
@@ -102,7 +102,7 @@ router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
 });
 
 
-// ✅ Get All User Applications (Admin Only)
+// Get All User Applications (Admin Only)
 router.get("/applications", verifyToken, isAdmin, async (req, res) => {
   try {
     const users = await User.find({ appliedJobs: { $exists: true, $not: { $size: 0 } } })
