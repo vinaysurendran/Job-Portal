@@ -190,22 +190,6 @@ const UserDashboard = () => {
                       size="small" 
                     />
                   </ListItem>
-                  <ListItem 
-                    button 
-                    disabled
-                    sx={{
-                      borderRadius: 2,
-                      opacity: 0.7,
-                      '&:hover': { backgroundColor: 'transparent' }
-                    }}
-                  >
-                    <Person color="primary" sx={{ mr: 2 }} />
-                    <ListItemText 
-                      primary="Update Profile" 
-                      secondary="Coming Soon"
-                      primaryTypographyProps={{ fontWeight: 600 }} 
-                    />
-                  </ListItem>
                 </List>
               </Paper>
             </motion.div>
